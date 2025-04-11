@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="./favicon.ico">
+    <title>天空岛服务器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background: #0a1a2f;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 星空背景 */
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* 天空岛主图容器 */
+        .celestia-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            width: 900px;
+            height: 675px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .celestia-img {
+            width: 100%;
+            height: 100%;
+            background: url('https://www.celestia.vip/images/Celestia.png') no-repeat center/contain;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+        }
+
+        /* 标题样式 */
+        .main-title {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-family: 'Microsoft YaHei', sans-serif;
+            text-align: center;
+            z-index: 4;
+            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+            50% { transform: translate(-50%, -50%) translateY(-20px); }
+        }
+
+        /* 流星容器 */
+        .meteor-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* 流星核心 */
+        .meteor-core {
+            position: absolute;
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,1) 0%,
+                rgba(255,255,255,0.8) 30%,
+                rgba(255,255,255,0) 100%);
+            filter: blur(1px);
+            border-radius: 50% 0 0 50%;
+            transform-origin: right center;
+        }
+
+        /* 流星拖尾 */
+        .meteor-tail {
+            position: absolute;
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0.3) 0%,
+                rgba(255,255,255,0) 100%);
+            filter: blur(3px);
+            transform-origin: right center;
+        }
+
+        @keyframes meteorFly {
+            0% {
+                transform: translate(-100%, -100%) rotate(-135deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(200vh, 200vh) rotate(-135deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; }
+        }
+
+        .gradient-overlay {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                rgba(10,26,47,0.8) 0%,
+                rgba(16,57,94,0.6) 50%,
+                rgba(10,26,47,0.8) 100%);
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="gradient-overlay"></div>
+    
+    <div class="celestia-container">
+        <div class="celestia-img"></div>
+    </div>
+
+    <h1 class="main-title">
+        <div>Celestia<span style="font-weight: 300">.VIP</span></div>
+        <div style="margin-top: 20px; font-size: 0.8em">天空岛服务器</div>
+    </h1>
+
+    <div class="meteor-container"></div>
+
+    <script>
+        // 星空生成
+        function createStars() {
+            const container = document.querySelector('.stars');
+            for(let i=0; i<200; i++) {
+                const star = document.createElement('div');
+                star.style.cssText = `
+                    position: absolute;
+                    width: ${Math.random()*2}px;
+                    height: ${Math.random()*2}px;
+                    background: rgba(255,255,255,${Math.random()*0.8});
+                    top: ${Math.random()*100}%;
+                    left: ${Math.random()*100}%;
+                    border-radius: 50%;
+                    animation: twinkle ${Math.random()*3+2}s infinite;
+                `;
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        // 高级流星生成
+        function createAdvancedMeteor() {
+            const container = document.querySelector('.meteor-container');
+            const meteor = document.createElement('div');
+            
+            // 随机参数
+            const startX = Math.random() * 100;
+            const startY = Math.random() * 100;
+            const angle = -45 + (Math.random() * 30 - 15);
+            const speed = Math.random() * 2 + 1.5;
+
+            meteor.style.cssText = `
+                position: absolute;
+                animation: meteorFly ${speed}s linear forwards;
+                top: ${startY}%;
+                left: ${startX}%;
+                transform: rotate(${angle}deg);
+            `;
+
+            const core = document.createElement('div');
+            core.className = 'meteor-core';
+            core.style.animation = `pulse ${Math.random()*0.5 + 0.5}s ease infinite`;
+
+            const tail = document.createElement('div');
+            tail.className = 'meteor-tail';
+            tail.style.transform = `scale(${Math.random()*0.5 + 0.8})`;
+
+            meteor.appendChild(core);
+            meteor.appendChild(tail);
+            container.appendChild(meteor);
+
+            setTimeout(() => meteor.remove(), speed * 1000);
+        }
+
+        // 流星雨控制器
+        function meteorShower() {
+            setInterval(() => {
+                const count = Math.floor(Math.random() * 3) + 1;
+                for(let i=0; i<count; i++) {
+                    setTimeout(createAdvancedMeteor, i * 200);
+                }
+            }, 1500);
+        }
+        meteorShower();
+    </script>
+
+    <script src="./script.js"></script>
+</body>
+</html>
